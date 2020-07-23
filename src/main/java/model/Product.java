@@ -7,11 +7,10 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product {
-    private Long id;
+public class Product extends BaseModel{
     private String name;
-    private String typeId;
-    private String countryId;
-    private Integer price;
+    private int typeId;
+    private int countryId;
+    private int price;
     private String description;
 }

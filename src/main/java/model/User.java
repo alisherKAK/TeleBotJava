@@ -7,8 +7,7 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
-    private Long id;
+public class User extends BaseModel{
     private String name;
-    private String status;
+    private long status;
 }

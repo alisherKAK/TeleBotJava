@@ -1,6 +1,6 @@
 package commands;
 
-import keyboards.BotKeyboard;
+import model.User;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 public class BarExecutor extends CommandExecutor {
@@ -9,10 +9,14 @@ public class BarExecutor extends CommandExecutor {
     @Override
     public SendMessage execute(String command, Long chatId) {
         if(command.equals(BAR_COMMAND)){
+            User user = this.userRepository.get(chatId);
+            user.setStatus(6);
+            this.userRepository.update(user);
+
             SendMessage newMessage = new SendMessage();
 
             newMessage.setText("Выберите напиток!");
-            newMessage.setReplyMarkup(BotKeyboard.getBarKeyboard());
+            newMessage.setReplyMarkup(this.getKeyboard(chatId));
             newMessage.setChatId(chatId);
 
             return newMessage;
