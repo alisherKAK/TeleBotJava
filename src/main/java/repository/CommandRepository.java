@@ -11,7 +11,7 @@ import java.util.List;
 public class CommandRepository extends DbRepository<Command> {
     private final String url = "jdbc:postgresql://localhost:5432/ResBot";
     private final String user = "postgres";
-    private final String password = "***************";
+    private final String password = "********************";
 
     private static final String SELECT_COMMAND_STATEMENT = "SELECT id, name, parent FROM public.commands c WHERE c.id = ?";
     private static final String SELECT_ALL_COMMAND_STATEMENT = "SELECT id, name, parent FROM public.commands";

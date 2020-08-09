@@ -11,6 +11,7 @@ public class Product extends BaseModel{
     private String name;
     private int typeId;
     private int countryId;
-    private int price;
+    private float price;
     private String description;
+    private String imagePath;
 }

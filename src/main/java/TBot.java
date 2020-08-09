@@ -1,4 +1,5 @@
-import chainProviders.BotCommandChainProvider;
+import model.TelegramMessage;
+import providers.BotCommandChainProvider;
 import commands.CommandExecutor;
 import interfaces.IRepository;
 import model.User;
@@ -8,6 +9,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import repository.UserRepository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -32,36 +35,52 @@ public class TBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if(update.hasMessage() && update.getMessage().hasText()){
-            String text = update.getMessage().getText();
-            Long chatId = update.getMessage().getChatId();
-            String username = update.getMessage().getFrom().getUserName();
-            SendMessage sendMessage;
+        String text = "";
+        Long chatId = null;
+        String username = null;
+        List<TelegramMessage> sendMessages;
 
-            if(text.equals("/start")) {
-                User user = new User();
-                user.setId(chatId);
-                user.setName(username);
-                user.setStatus(0);
+        if(update.hasMessage()){
+            text = update.getMessage().getText();
+            chatId = update.getMessage().getChatId();
+            username = update.getMessage().getFrom().getUserName();
+        }
+        else if(update.hasCallbackQuery()){
+            text = update.getCallbackQuery().getData();
+            chatId = update.getCallbackQuery().getMessage().getChatId();
+            username = update.getCallbackQuery().getFrom().getUserName();
+        }
 
-                this.userRepository.add(user);
+        if(text.equals("/start") && !this.userRepository.has(chatId)) {
+            User user = new User();
+            user.setId(chatId);
+            user.setName(username);
+            user.setStatus(0);
+
+            this.userRepository.add(user);
+        }
+
+        sendMessages = rootCommand.execute(text, chatId);
+
+        if(sendMessages == null) {
+            sendMessages = new ArrayList<>();
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setText("Unknown command");
+            sendMessage.setChatId(chatId);
+
+            sendMessages.add(new TelegramMessage(sendMessage, null));
+        }
+
+        try{
+            for (var message: sendMessages) {
+                if(message.getPhoto() != null)
+                    this.execute(message.getPhoto());
+                if(message.getMessage() != null)
+                    this.execute(message.getMessage());
             }
-
-            sendMessage = rootCommand.execute(text, chatId);
-
-            if(sendMessage == null) {
-                sendMessage = new SendMessage();
-                sendMessage.setText("Unknown command");
-                sendMessage.setChatId(chatId);
-            }
-
-            try{
-                this.execute(sendMessage);
-            }
-            catch(TelegramApiException ex){
-                log.warning(ex.getMessage());
-            }
-
+        }
+        catch(TelegramApiException ex){
+            log.warning(ex.getMessage());
         }
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 public class UserRepository extends DbRepository<User> {
     private final String url = "jdbc:postgresql://localhost:5432/ResBot";
     private final String user = "postgres";
-    private final String password = "*********************";
+    private final String password = "********************";
 
     private static final String SELECT_USER_STATEMENT = "SELECT id, name, status FROM public.users u WHERE u.id = ?";
     private static final String SELECT_ALL_USER_STATEMENT = "SELECT id, name, status FROM public.users";
@@ -31,7 +31,7 @@ public class UserRepository extends DbRepository<User> {
     @Override
     public void add(User item) {
         try {
-            Connection connection = this.getConnection();
+            connection = this.getConnection();
             PreparedStatement statement = connection.prepareStatement(INSERT_USER_STATEMENT);
             statement.setLong(1, item.getId());
             statement.setString(2, item.getName());
@@ -48,13 +48,14 @@ public class UserRepository extends DbRepository<User> {
 
     @Override
     public User get(Long id) {
+        User user = null;
         try {
-            Connection connection = this.getConnection();
+            connection = this.getConnection();
             PreparedStatement statement = connection.prepareStatement(SELECT_USER_STATEMENT);
             statement.setLong(1, id);
-            User user = new User();
             ResultSet result = statement.executeQuery();
             while(result.next()){
+                user = new User();
                 user.setId(result.getLong(1));
                 user.setName(result.getString(2));
                 user.setStatus(result.getInt(3));
@@ -64,21 +65,21 @@ public class UserRepository extends DbRepository<User> {
                 log.info(result.getString(3));
             }
 
-            return user;
         }
         catch(SQLException ex){
             log.warn("getUser : chatId={}", id);
-            return null;
         }
         finally {
             this.close();
         }
+
+        return user;
     }
 
     public List<User> getAll(){
         List<User> users = new ArrayList<>();
         try{
-            Connection connection = this.getConnection();
+            connection = this.getConnection();
             PreparedStatement statement = connection.prepareStatement(SELECT_ALL_USER_STATEMENT);
             ResultSet resultSet = statement.executeQuery();
             while(resultSet.next()){
@@ -107,7 +108,7 @@ public class UserRepository extends DbRepository<User> {
     @Override
     public void update(User item, Long id) {
         try{
-            Connection connection = this.getConnection();
+            connection = this.getConnection();
             PreparedStatement statement = connection.prepareStatement(UPDATE_USER_STATEMENT);
             statement.setString(1, item.getName());
             statement.setLong(2, item.getStatus());
@@ -130,7 +131,7 @@ public class UserRepository extends DbRepository<User> {
     @Override
     public void delete(Long id) {
         try{
-            Connection connection = this.getConnection();
+            connection = this.getConnection();
             PreparedStatement statement = connection.prepareStatement(DELETE_USER_STATEMENT);
             statement.setLong(1, id);
             statement.execute();

@@ -19,29 +19,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class BarExecutor extends CommandExecutor {
-    private static final String BAR_COMMAND = "/bar";
+public class KitchenExecutor extends CommandExecutor {
+    private static final String KITCHEN_COMMAND = "/kitchen";
     private IRepository<Product> productRepository = new ProductRepository();
 
     @Override
     public List<TelegramMessage> execute(String command, Long chatId) {
-        if(command.equals(BAR_COMMAND)){
+        if(command.equals(KITCHEN_COMMAND)){
             User user = this.userRepository.get(chatId);
-            user.setStatus(6);
-            this.userRepository.update(user);
+            user.setStatus(5);
+            userRepository.update(user);
 
             List<TelegramMessage> messages = this.getEmptyList();
 
             SendMessage newMessage = new SendMessage();
 
-            newMessage.setText("Выберите напиток!");
+            newMessage.setText("Выберите еду!");
             newMessage.setReplyMarkup(KeyboardProvider.getKeyboard(chatId));
             newMessage.setChatId(chatId);
 
             messages.add(new TelegramMessage(newMessage, null));
 
             List<Product> products = productRepository.getAll()
-                    .stream().filter(p -> p.getTypeId() == ProductTypes.Drink.getCode()).collect(Collectors.toList());
+                    .stream().filter(p -> p.getTypeId() == ProductTypes.Meal.getCode()).collect(Collectors.toList());
+
             for(var product : products){
                 TelegramMessage message = new TelegramMessage();
 
@@ -60,7 +61,6 @@ public class BarExecutor extends CommandExecutor {
                     SendPhoto photo = new SendPhoto();
                     String path = Paths.get("src/main/resources/product_images/" + product.getImagePath()).toAbsolutePath().toString();
                     photo.setPhoto(product.getId().toString(), new FileInputStream(new File(path)));
-                    photo.setChatId(chatId);
 
                     message.setPhoto(photo);
                 }
